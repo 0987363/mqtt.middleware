@@ -2,13 +2,12 @@ package mqtt_middleware
 
 import (
 	"math"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 type Context struct {
-	handlers HandlersChain
-	index    int
+	subscribers SubscribersChain
+	index       int
+	subscribe   *subscribe
 
 	Keys map[string]interface{}
 }
@@ -27,9 +26,13 @@ func (c *Context) Get(key string) (value interface{}, exists bool) {
 	return
 }
 
-func (c *Context) Next(ctx *Context, client mqtt.Client, msg mqtt.Message) {
+func (c *Context) Topic() string {
+	return c.subscribe.topic
+}
+
+func (c *Context) Next() {
 	c.index++
-	for s := len(c.handlers); c.index < s; c.index++ {
-		c.handlers[c.index](c, client, msg)
+	for s := len(c.subscribers); c.index < s; c.index++ {
+		c.subscribers[c.index](c)
 	}
 }

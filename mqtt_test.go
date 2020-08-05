@@ -20,7 +20,7 @@ func Test_accepting_new_client_callback(t *testing.T) {
 	}
 
 	fmt.Println("init logger")
-	engine.Use(func(c *Context, client mqtt.Client, msg mqtt.Message) {
+	engine.Use(func(c *Context) {
 		c.Set("logger", "logger value")
 		fmt.Println("Init logger success.")
 	})
@@ -31,7 +31,7 @@ func Test_accepting_new_client_callback(t *testing.T) {
 	fmt.Println("init subscribe")
 	engine.Subscribe(TOPIC, 0, func(c *Context, client mqtt.Client, msg mqtt.Message) {
 		logger, _ := c.Get("logger")
-		fmt.Println("value: ", logger.(string))
+		fmt.Println("value: ", logger.(string), c.Topic())
 		if string(msg.Payload()) != "mymessage" {
 			t.Fatalf("want mymessage, got %s", msg.Payload())
 		}

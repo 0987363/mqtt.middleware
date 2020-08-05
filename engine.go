@@ -10,18 +10,14 @@ func init() {
 	engine = New()
 }
 
+type SubscriberFunc func(*Context)
+type SubscribersChain []SubscriberFunc
 type HandlerFunc func(*Context, mqtt.Client, mqtt.Message)
-type HandlersChain []HandlerFunc
-
-type HandlersMiddware struct {
-	Handlers HandlersChain
-	Index    int
-}
 
 type Engine struct {
-	handlers HandlersChain
-	m        map[string]*subscribe
-	stop     chan int
+	subscribers SubscribersChain
+	m           map[string]*subscribe
+	stop        chan int
 }
 
 type subscribe struct {
@@ -37,8 +33,8 @@ func New() *Engine {
 	}
 }
 
-func (s *Engine) Use(middleware ...HandlerFunc) {
-	s.handlers = append(s.handlers, middleware...)
+func (s *Engine) Use(middleware ...SubscriberFunc) {
+	s.subscribers = append(s.subscribers, middleware...)
 }
 
 func (s *Engine) Subscribe(topic string, qos byte, callback HandlerFunc) {
@@ -53,12 +49,13 @@ func (s *Engine) Run(client mqtt.Client) error {
 	for _, v := range s.m {
 		if token := client.Subscribe(v.topic, v.qos, func(client mqtt.Client, msg mqtt.Message) {
 			c := &Context{
-				handlers: make(HandlersChain, len(engine.handlers)),
-				index:    -1,
+				subscribers: make(SubscribersChain, len(engine.subscribers)),
+				index:       -1,
+				subscribe:   v,
 			}
-			copy(c.handlers, engine.handlers)
+			copy(c.subscribers, engine.subscribers)
 
-			c.Next(c, client, msg)
+			c.Next()
 			v.f(c, client, msg)
 		}); token.Wait() && token.Error() != nil {
 			return token.Error()
