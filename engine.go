@@ -7,10 +7,7 @@ import (
 var engine *Engine
 
 func init() {
-	engine = &Engine{
-		m:    make(map[string]*subscribe),
-		stop: make(chan int, 1),
-	}
+	engine = New()
 }
 
 type HandlerFunc func(*Context, mqtt.Client, mqtt.Message)
@@ -31,6 +28,13 @@ type subscribe struct {
 	topic string
 	qos   byte
 	f     HandlerFunc
+}
+
+func New() *Engine {
+	return &Engine{
+		m:    make(map[string]*subscribe),
+		stop: make(chan int, 1),
+	}
 }
 
 func (s *Engine) Use(middleware ...HandlerFunc) {
