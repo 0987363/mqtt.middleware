@@ -51,7 +51,6 @@ func (s *Engine) Run(client mqtt.Client) error {
 			c := &Context{
 				subscribers: make(SubscribersChain, len(engine.subscribers)),
 				index:       -1,
-				subscribe:   v,
 			}
 			copy(c.subscribers, engine.subscribers)
 

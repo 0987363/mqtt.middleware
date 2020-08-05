@@ -7,7 +7,6 @@ import (
 type Context struct {
 	subscribers SubscribersChain
 	index       int
-	subscribe   *subscribe
 
 	Keys map[string]interface{}
 }
@@ -24,10 +23,6 @@ func (c *Context) Set(key string, value interface{}) {
 func (c *Context) Get(key string) (value interface{}, exists bool) {
 	value, exists = c.Keys[key]
 	return
-}
-
-func (c *Context) Topic() string {
-	return c.subscribe.topic
 }
 
 func (c *Context) Next() {

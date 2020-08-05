@@ -31,7 +31,7 @@ func Test_accepting_new_client_callback(t *testing.T) {
 	fmt.Println("init subscribe")
 	engine.Subscribe(TOPIC, 0, func(c *Context, client mqtt.Client, msg mqtt.Message) {
 		logger, _ := c.Get("logger")
-		fmt.Println("value: ", logger.(string), c.Topic())
+		fmt.Println("value: ", logger.(string), msg.Topic())
 		if string(msg.Payload()) != "mymessage" {
 			t.Fatalf("want mymessage, got %s", msg.Payload())
 		}
