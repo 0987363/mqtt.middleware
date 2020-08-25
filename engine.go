@@ -49,10 +49,10 @@ func (s *Engine) Run(client mqtt.Client) error {
 	for _, v := range s.m {
 		if token := client.Subscribe(v.topic, v.qos, func(client mqtt.Client, msg mqtt.Message) {
 			c := &Context{
-				subscribers: make(SubscribersChain, len(engine.subscribers)),
+				subscribers: make(SubscribersChain, len(s.subscribers)),
 				index:       -1,
 			}
-			copy(c.subscribers, engine.subscribers)
+			copy(c.subscribers, s.subscribers)
 			c.subscribers = append(c.subscribers, func(c *Context) {
 				v.f(c, client, msg)
 			})
