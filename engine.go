@@ -53,9 +53,11 @@ func (s *Engine) Run(client mqtt.Client) error {
 				index:       -1,
 			}
 			copy(c.subscribers, engine.subscribers)
+			c.subscribers = append(c.subscribers, func(c *Context) {
+				v.f(c, client, msg)
+			})
 
 			c.Next()
-			v.f(c, client, msg)
 		}); token.Wait() && token.Error() != nil {
 			return token.Error()
 		}
